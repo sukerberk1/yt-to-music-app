@@ -1,6 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import { Link } from "react-router-dom";
+import { optionGroupUnstyledClasses } from "@mui/base";
 
 /* google api link already filled in with a key */
 const YOUTUBE_API_KEY = 'AIzaSyC6LZBjHVXzJeihFO1EymtwKdI5b4QxsIs'+'';
@@ -21,25 +23,36 @@ export default function Header(){
       console.log(res.items)
       let videoList = [];
       for (let i = 0; i < res.items.length; i++) {
-        videoList.push(res.items[i].snippet.title);
+        let o = {
+          name: res.items[i].snippet.title,
+          link: `yt-result/${res.items[i].id.videoId}`
+        };
+        videoList.push(o);
       }
       console.log(videoList);
       setSearchResults(videoList);
     })
   };
 
-    return(<Autocomplete
-        style={{maxWidth: 500}}
+
+  return(<Autocomplete
+        style={{margin: 10}}
         freeSolo
         autoComplete
         autoHighlight
-        options={searchResults}
+        options={searchResults || [] }
+        getOptionLabel={(option => option.name)}
+        renderOption={(props, option) => (
+          <Link {...props} to={option.link}>
+             {option.name}
+          </Link>
+    )}
         renderInput={(params)=>
           <TextField
             {...params}
             onChange={(e)=> getAPIdata(e.target.value)}
             variant="outlined"
-            label="Search Box"
+            label="Search via YouTube"
           />
         }
         />);

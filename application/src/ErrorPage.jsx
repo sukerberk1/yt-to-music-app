@@ -4,7 +4,7 @@ import ReportIcon from '@mui/icons-material/Report';
 
 export default function ErrorPage(){
     return(
-    <Container fixed>
+    <Container>
         <Paper variant="outlined" square >
             <ReportIcon/><br/>
             Unexpected error happened! :(

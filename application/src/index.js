@@ -4,18 +4,19 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider  } from 'react-router-dom';
-import YtResult from './routes/YtResult';
+import YtResult, { loader as YtResultLoader} from './routes/YtResult';
 import ErrorPage from './ErrorPage';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App/>,
-    errorElement: <ErrorPage/>, 
+    /*errorElement: <ErrorPage/>, */
     children: [
       {
         path: 'yt-result/:videoId',
         element: <YtResult/>,
+        loader: YtResultLoader,
       },
     ],
   },

@@ -10,6 +10,7 @@ class Audio(models.Model):
     author = models.CharField(max_length=100)
     image_url = models.URLField()
     duration_seconds = models.IntegerField()
+    file = models.FileField()
 
     def __str__(self) -> str:
         return self.author + self.title

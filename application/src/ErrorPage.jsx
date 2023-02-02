@@ -1,14 +1,11 @@
 import { Container } from "@mui/system";
-import { Paper } from "@mui/material";
 import ReportIcon from '@mui/icons-material/Report';
 
 export default function ErrorPage(){
     return(
     <Container>
-        <Paper variant="outlined" square >
-            <ReportIcon/><br/>
+            <ReportIcon style={{textAlign: 'center', fontSize: 56}}/><br/>
             Unexpected error happened! :(
-        </Paper>
     </Container>
     );
 }

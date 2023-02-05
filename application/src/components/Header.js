@@ -11,6 +11,7 @@ const url2_duration = `https://www.googleapis.com/youtube/v3/videos?part=content
 /*data above needs to be moved to config file */
 /* kaz bałagane */
 
+
 export default function Header(){
 
     const [searchResults, setSearchResults] = useState([]);

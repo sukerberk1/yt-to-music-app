@@ -1,17 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import App, {action as appAction, loader as appLoader} from './App';
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider  } from 'react-router-dom';
 import YtResult, { loader as YtResultLoader} from './routes/YtResult';
-import ErrorPage from './ErrorPage';
+import ErrorPage from './routes/ErrorPage';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App/>,
-    /*errorElement: <ErrorPage/>, */
+    /*errorElement: <ErrorPage/>,*/
+    loader: appLoader,
+    action: appAction,
     children: [
       {
         path: 'yt-result/:videoId',
@@ -29,8 +31,3 @@ root.render(
     <RouterProvider router={router} />
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

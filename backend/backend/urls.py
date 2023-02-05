@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import AudioViewSet, UsersViewSet
+from api.views import AudioViewSet, UsersViewSet, CustomAuthToken
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -25,7 +25,7 @@ router.register(r'users', UsersViewSet, 'UsersViewSet')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
+    path('api-token-auth/', CustomAuthToken.as_view() , name='api_token_auth'),
  
     path('api/', include(router.urls), name='api'),
 ]

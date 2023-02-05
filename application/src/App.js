@@ -1,31 +1,29 @@
-import logo from './logo.svg';
 import React, { useState, useEffect } from "react";
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import Grid from '@mui/material/Grid'; // Grid version 1
-import { Container, Paper, styled } from '@mui/material';
-import { Menu, MenuItem } from '@mui/material';
+import { Box, Container, Button, TextField, Paper } from '@mui/material';
+import { AccountCircle, ConstructionOutlined, PasswordRounded } from '@mui/icons-material';
 import './App.css';
 import Header from './components/Header'
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
-import { Outlet } from 'react-router-dom';
+import { Form } from 'react-router-dom';
+import { Outlet, useLoaderData, useActionData, redirect } from 'react-router-dom';
+import UserPanel from "./components/UserPanel";
+import AuthContext, { AuthProvider } from "./context/AuthContext";
+import jwtDecode from "jwt-decode";
 
-const Item = styled(Paper)(({ theme }) => ({
-  ...theme.typography.body2,
-  padding: theme.spacing(6),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
+export function loader({ request, params }) {
+    const user = {
+      token: localStorage.getItem('authtoken'),
+      // user_id: localStorage.getItem('user_id'),
+      // username: localStorage.getItem('username'),
+      // email: localStorage.getItem('email'),
+    }
+    return user;
+}
 
+export async function action( {params, request} ){
 
-
-function App(){
-
-  const [currentPage, setCurrentPage] = useState('')
-
-  useEffect(()=>{
-    async function fetchToken(){
-      const response = await fetch("http://127.0.0.1:8000/api-token-auth/", {
+  let formData = await request.formData();
+  const response = await fetch("http://127.0.0.1:8000/api-token-auth/", {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -33,35 +31,43 @@ function App(){
         },
         body: JSON.stringify(
             {
-              username: 'sukerberk1', 
-              password: '7Amemecorporation',
+              username: formData.get('username'), 
+              password: formData.get('password'),
             }
           )
         });
-        if(!response.ok){
-          return(new Error('Couldnt fetch data from api'))
-        }
-        return (response.json());
-    }
-    fetchToken().then( res => console.log(res))
-  }, [])
+        
+    response.json()
+    .then(token => {console.log(token);localStorage.setItem('authtoken', token.token )} );
+
+    return (redirect('/'));
+}
+
+
+function App(){
+
+  const loaderUser = useLoaderData();
+  const [user, setUser] = useState({});
+  const [userLogged, setUserLogged] = useState(0);
 
 
   return(
+    <AuthProvider>
       <Container className="App">
-        App<br/>
+        youtube-music-app<br/>
         <Header/>
-      
+
           <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
             <Grid item xs={12} md={3}>
-              <Item>User</Item>
+              <UserPanel/>
             </Grid>
             <Grid item xs={12} md={9}>
-              <Item><Outlet/></Item>
+              <Outlet/>
             </Grid>
           </Grid>
 
       </Container>
+    </AuthProvider>
   );
 }
 

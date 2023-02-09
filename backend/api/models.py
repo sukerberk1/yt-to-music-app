@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 import uuid # for eventually assigning id
 
 
@@ -11,6 +12,8 @@ class Audio(models.Model):
     image_url = models.URLField()
     duration_seconds = models.IntegerField()
     file = models.FileField()
+    lib = models.ManyToManyField(User, related_name="audiolib")
 
     def __str__(self) -> str:
         return self.author + self.title
+

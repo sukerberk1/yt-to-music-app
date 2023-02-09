@@ -15,9 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import AudioViewSet, UsersViewSet, CustomAuthToken
+from api.views import AudioViewSet, UsersViewSet, userAudioLib
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt import views as jwt_views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 router = DefaultRouter()
 router.register(r'audios', AudioViewSet, 'AudioViewSet')
@@ -26,8 +26,11 @@ router.register(r'users', UsersViewSet, 'UsersViewSet')
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('api/token-obtain/', jwt_views.TokenObtainPairView.as_view() , name='api_token_auth'),
-    path('api/token-refresh/', jwt_views.TokenRefreshView.as_view() , name='api_token_clear'),
+    path('api/token-obtain/', TokenObtainPairView.as_view() , name='api_token_auth'),
+    path('api/token-refresh/', TokenRefreshView.as_view() , name='api_token_clear'),
+    path('api/token-verify/', TokenVerifyView.as_view() , name='api_token_verify'),
 
     path('api/', include(router.urls), name='api'),
+
+    path('api/userlib/', userAudioLib, name='UserLibView'),
 ]

@@ -1,14 +1,13 @@
 from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .models import Audio
 from .serializers import AudioSerializer, UserSerializer
 from django.contrib.auth.models import User
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 # Create your views here.
 
@@ -22,18 +21,19 @@ class UsersViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsAuthenticated,)   
 
 
-class CustomAuthToken(ObtainAuthToken):
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'created': created,
-            'token': token.key,
-            'user_id': user.pk,
-            'username': user.username,
-            'email': user.email
-        })
+@api_view(['GET', 'POST'])
+def userAudioLib(request):
+    authenticator = JWTAuthentication()
+    res = authenticator.authenticate(request)
+    if res is not None:
+        user_data, token = res
+        user_data_serialized = UserSerializer(user_data).data
+        user_data_serialized.pop("password") # delete password for security reasons - it mustnt be shown
+    else:
+        return Response({'message':"Couldn't authenticate user"})
+    user = User.objects.get(id=user_data_serialized['id'])
+    audiolib = user.audiolib.all()
+    audiolib_serialized = AudioSerializer(audiolib, many=True).data
+    return Response(audiolib_serialized)
+    
+    

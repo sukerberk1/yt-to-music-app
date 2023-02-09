@@ -43,6 +43,28 @@ export const AuthProvider = ({ children }) => {
       alert("Something went wrong!");
     }
   };
+
+  const refreshUser = async () => {
+    const refreshToken = localStorage.getItem('refreshtoken');
+    const response = await fetch("http://127.0.0.1:8000/api/token-refresh/", {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        refresh: refreshToken
+      })
+    });
+    const data = await response.json();
+    if (response.status === 200) {
+      localStorage.setItem('authtoken', data.access); 
+      return 1;
+    } else{
+      console.log('Couldnt refresh token');
+      return 0;
+    }
+  }
   
 //   const registerUser = async (username, password, password2) => {
 //     const response = await fetch("http://127.0.0.1:8000/api/register/", {
@@ -75,6 +97,7 @@ export const AuthProvider = ({ children }) => {
     setUserToken,
     loginUser,
     logoutUser,
+    refreshUser
   };
 
   useEffect(() => {

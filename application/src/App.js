@@ -11,44 +11,17 @@ import AuthContext, { AuthProvider } from "./context/AuthContext";
 import jwtDecode from "jwt-decode";
 
 export function loader({ request, params }) {
-    const user = {
-      token: localStorage.getItem('authtoken'),
-      // user_id: localStorage.getItem('user_id'),
-      // username: localStorage.getItem('username'),
-      // email: localStorage.getItem('email'),
-    }
-    return user;
+    /* May load sth here... idk */
+    return 1;
 }
 
 export async function action( {params, request} ){
-
-  let formData = await request.formData();
-  const response = await fetch("http://127.0.0.1:8000/api-token-auth/", {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(
-            {
-              username: formData.get('username'), 
-              password: formData.get('password'),
-            }
-          )
-        });
-        
-    response.json()
-    .then(token => {console.log(token);localStorage.setItem('authtoken', token.token )} );
-
+  /* By the neccesity of post requests, action function must be defined in order for them to work */
     return (redirect('/'));
 }
 
 
 function App(){
-
-  const loaderUser = useLoaderData();
-  const [user, setUser] = useState({});
-  const [userLogged, setUserLogged] = useState(0);
 
 
   return(

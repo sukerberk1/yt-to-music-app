@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App, {action as appAction, loader as appLoader} from './App';
-import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider  } from 'react-router-dom';
 import YtResult, { loader as YtResultLoader} from './routes/YtResult';
 import ErrorPage from './routes/ErrorPage';

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .models import Audio
 from .serializers import AudioSerializer, UserSerializer
@@ -30,6 +31,7 @@ class CustomAuthToken(ObtainAuthToken):
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
         return Response({
+            'created': created,
             'token': token.key,
             'user_id': user.pk,
             'username': user.username,

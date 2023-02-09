@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const loginUser = async (username, password) => {
-    const response = await fetch("http://127.0.0.1:8000/api-token-auth/", {
+    const response = await fetch("http://127.0.0.1:8000/api/token-obtain/", {
       method: "POST",
       headers: {
         'Accept': 'application/json',
@@ -29,12 +29,16 @@ export const AuthProvider = ({ children }) => {
       })
     });
     const data = await response.json();
-
+    console.log(data);
     if (response.status === 200) {
       console.log(data);
-      setUserToken(data.token);
-      localStorage.setItem("authtoken", data.token);
+      setUserToken(data.access);
+      localStorage.setItem("authtoken", data.access);
+      localStorage.setItem("refreshtoken", data.refresh);
       redirect("/");
+    } else if(response.status === 401 || response.status===403){
+      alert("Improper credentials!");
+      /* TBD */
     } else {
       alert("Something went wrong!");
     }
@@ -59,10 +63,10 @@ export const AuthProvider = ({ children }) => {
 //     }
 //   };
 
-  const logoutUser = () => {
-    console.log('a')
+  const logoutUser = async () => {
     setUserToken(null);
     localStorage.removeItem("authtoken");
+    localStorage.removeItem("refreshtoken");
     redirect("/");
   };
 

@@ -1,7 +1,8 @@
 import { Form } from "react-router-dom";
-import { Box, Button, Paper, TextField } from '@mui/material';
+import { Box, Button, TextField, Paper } from '@mui/material';
 import { AccountCircle, PasswordRounded } from '@mui/icons-material';
 import { useContext, useEffect } from "react";
+import jwt_decode from "jwt-decode";
 import AuthContext from "../context/AuthContext";
 
 
@@ -19,15 +20,13 @@ export default function UserPanel(props){
   }
   
 
-  console.log(userToken);
     return (<>{ userToken ? (
-        <>
-        <Paper elevation={3} style={{padding: 16}}>
-          <div>{userToken}</div>
+        <Box sx={{padding: 1, wordWrap: 'break-word' }}>
+          
+          <div>{JSON.stringify(jwt_decode(userToken))}</div>
           <Button variant="outlined" style={{margin: 8}} onClick={logoutUser}>Log out</Button>
-        </Paper>
+        </Box>
         
-        </>
       ): (
 
         <Form method="POST" onSubmit={handleSubmit}>

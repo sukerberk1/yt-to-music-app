@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Audio
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 class AudioSerializer(serializers.ModelSerializer):
     class Meta:

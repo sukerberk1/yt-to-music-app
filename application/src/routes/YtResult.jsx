@@ -1,7 +1,9 @@
-import { Typography } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { Link, useLoaderData } from "react-router-dom";
 import { Card, CardMedia, CardContent, CardActions, Button } from "@mui/material";
-
+import { Download } from "@mui/icons-material";
+import { useContext } from "react";
+import AuthContext from "../context/AuthContext";
 const YOUTUBE_API_KEY = 'AIzaSyC6LZBjHVXzJeihFO1EymtwKdI5b4QxsIs'+'';
 const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&key=${YOUTUBE_API_KEY}&id=`
 const url2_duration = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&key=${YOUTUBE_API_KEY}&id=`;
@@ -67,31 +69,49 @@ export async function loader({params}){
 export default function YtResult(props){
 
     const videoData = useLoaderData();
-    console.log(videoData);
+    const { verifyAccessToken, refreshUser } = useContext(AuthContext)
+    
+
+    const handleVideoSave = async () =>{
+      verifyAccessToken().then(ans => {
+        if(!ans) refreshUser();
+      });
+      const accessToken = localStorage.getItem('authtoken');
+      const result = await fetch("http://127.0.0.1:8000/api/addaudio/", {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer '+ accessToken,
+        },
+        body: JSON.stringify(videoData),
+      }); 
+      console.log(await result.json());
+    }
 
     return(
-        <Card sx={{ maxWidth: 565 }}>
-        <CardMedia
-          component="img"
-          alt="green iguana"
-          height="140"
-          image={videoData.image_url}
-        />
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
+      <Card sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <CardContent sx={{ flex: '1 0 auto' }}>
+          <Typography component="div" variant="h5">
             {videoData.title}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Author: {videoData.author}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Duration: {videoData.duration_seconds}
+          <Typography variant="subtitle1" color="text.secondary" component="div">
+            {videoData.author}
           </Typography>
         </CardContent>
-        <CardActions>
-          <Button size="small">Share</Button>
-          <Button size="small">Learn More</Button>
-        </CardActions>
-      </Card>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pl: 1, pb: 4 }}>
+        <Button variant="contained" startIcon={<Download/>} onClick={handleVideoSave}>
+          Save in your library
+        </Button>
+        </Box>
+      </Box>
+      <CardMedia
+        component="img"
+        sx={{ margin: 2, maxWidth:480 }}
+        image={videoData.image_url}
+        alt="Music video thumbnail"
+      />
+    </Card>
     );
 }

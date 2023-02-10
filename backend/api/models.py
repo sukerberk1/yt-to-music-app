@@ -6,7 +6,7 @@ import uuid # for eventually assigning id
 # Create your models here.
 
 class Audio(models.Model):
-    yt_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    yt_id = models.CharField(max_length=100)
     title = models.CharField(max_length=150)
     author = models.CharField(max_length=100)
     image_url = models.URLField()

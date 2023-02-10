@@ -44,6 +44,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const verifyAccessToken = async () => {
+    const accessToken = localStorage.getItem('authtoken');
+    const response = await fetch("http://127.0.0.1:8000/api/token-verify/", {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: accessToken,
+      })
+    });
+    if (response.status === 200) return 1
+    else return 0;
+  }
+
   const refreshUser = async () => {
     const refreshToken = localStorage.getItem('refreshtoken');
     const response = await fetch("http://127.0.0.1:8000/api/token-refresh/", {
@@ -97,12 +113,15 @@ export const AuthProvider = ({ children }) => {
     setUserToken,
     loginUser,
     logoutUser,
-    refreshUser
+    refreshUser,
+    verifyAccessToken,
   };
 
   useEffect(() => {
     if (localStorage.getItem('authtoken')) {
-        console.log(userToken);
+        verifyAccessToken().then(ans => {
+          if(!ans) refreshUser();
+        });
         setUserToken(localStorage.getItem('authtoken'));
     }
     setLoading(false);

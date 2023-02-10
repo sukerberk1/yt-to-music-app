@@ -4,11 +4,9 @@ import { Box, Container, Button, TextField, Paper } from '@mui/material';
 import { AccountCircle, ConstructionOutlined, PasswordRounded } from '@mui/icons-material';
 import './App.css';
 import Header from './components/Header'
-import { Form } from 'react-router-dom';
-import { Outlet, useLoaderData, useActionData, redirect } from 'react-router-dom';
+import { Outlet,  redirect } from 'react-router-dom';
 import UserPanel from "./components/UserPanel";
-import AuthContext, { AuthProvider } from "./context/AuthContext";
-import jwtDecode from "jwt-decode";
+import { AuthProvider } from "./context/AuthContext";
 
 export function loader({ request, params }) {
     /* May load sth here... idk */

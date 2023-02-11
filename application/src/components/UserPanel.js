@@ -1,6 +1,6 @@
 import { Form } from "react-router-dom";
 import React from "react";
-import { Box, Button, TextField, List, Avatar, CircularProgress, ListItem, ListItemAvatar, ListItemText, Typography, Divider } from '@mui/material';
+import { Box, Button, TextField, List, Avatar, CircularProgress, ListItem, ListItemAvatar, ListItemText, Typography, Divider, LinearProgress } from '@mui/material';
 import { AccountCircle, PasswordRounded } from '@mui/icons-material';
 import { useContext, useEffect, useState } from "react";
 import jwt_decode from "jwt-decode";
@@ -73,7 +73,7 @@ function UserHero(props){
         <p>{userObject.email}</p>
       </Box>
       ) : (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', flexFlow: 'column', alignItems: 'center', }}>
           <CircularProgress/>
         </Box>
       )}
@@ -101,11 +101,10 @@ function UserLibrary(props){
   }
 
   useEffect(()=>{load();}, []);
-  console.log(userLib);
 
   return (
     <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-      {userLib.map(elem=>(
+      {userLib.length > 0 ? (userLib.map(elem=>(
           <>
             <ListItem alignItems="flex-start">
                 <ListItemAvatar>
@@ -129,7 +128,12 @@ function UserLibrary(props){
             </ListItem>
             <Divider variant="inset" component="li" />
           </>
-        )
+        ))
+      )
+      :(
+        <Box sx={{ display: 'flex', flexFlow: 'column', alignItems: 'center', }}>
+        <LinearProgress/>
+      </Box> 
       )}
     </List>
   );
@@ -153,7 +157,7 @@ export default function UserPanel(props){
         <Box sx={{padding: 1, wordWrap: 'break-word' }}>
           <UserHero/>
           <Button variant="outlined" style={{margin: 8}} onClick={logoutUser}>Log out</Button>
-          <UserLibrary/>
+          <UserLibrary libUpdates={props.libUpdates}/>
         </Box>
         
       ): (

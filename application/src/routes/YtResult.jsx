@@ -1,5 +1,5 @@
 import { Box, IconButton, Typography } from "@mui/material";
-import { Link, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData, useOutletContext } from "react-router-dom";
 import { Card, CardMedia, CardContent, CardActions, Button } from "@mui/material";
 import { Download } from "@mui/icons-material";
 import { useContext } from "react";
@@ -69,15 +69,16 @@ export async function loader({params}){
 export default function YtResult(props){
 
     const videoData = useLoaderData();
-    const { verifyAccessToken, refreshUser } = useContext(AuthContext)
-    
+    const { verifyAccessToken, refreshUser, userToken } = useContext(AuthContext)
+    /* state inheritage */
+    const [libUpdates, setLibUpdates] = useOutletContext();
 
     const handleVideoSave = async () =>{
       verifyAccessToken().then(ans => {
         if(!ans) refreshUser();
       });
       const accessToken = localStorage.getItem('authtoken');
-      const result = await fetch("http://127.0.0.1:8000/api/addaudio/", {
+      const response = await fetch("http://127.0.0.1:8000/api/addaudio/", {
         method: "POST",
         headers: {
           'Accept': 'application/json',
@@ -86,7 +87,11 @@ export default function YtResult(props){
         },
         body: JSON.stringify(videoData),
       }); 
-      console.log(await result.json());
+      console.log(await response.json());
+      if (response.status === 208){
+        alert("Already in your lib!");
+      }
+      setLibUpdates(libUpdates+1);
     }
 
     return(
@@ -101,9 +106,17 @@ export default function YtResult(props){
           </Typography>
         </CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pl: 1, pb: 4 }}>
-        <Button variant="contained" startIcon={<Download/>} onClick={handleVideoSave}>
+        { userToken ? (
+          <Button variant="contained" startIcon={<Download/>} onClick={handleVideoSave}>
           Save in your library
         </Button>
+        ):(
+          <Button disabled variant="contained" startIcon={<Download/>} >
+            Log in to save
+          </Button>
+        )}
+        
+
         </Box>
       </Box>
       <CardMedia

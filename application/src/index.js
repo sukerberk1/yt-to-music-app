@@ -4,6 +4,8 @@ import './index.css';
 import App, {action as appAction, loader as appLoader} from './App';
 import { createBrowserRouter, RouterProvider  } from 'react-router-dom';
 import YtResult, { loader as YtResultLoader} from './routes/YtResult';
+import RegistrationPage, {action as RegistrationAction} from './routes/RegistrationPage';
+import MediaPlayer from './routes/MediaPlayer';
 import ErrorPage from './routes/ErrorPage';
 
 const router = createBrowserRouter([
@@ -18,6 +20,15 @@ const router = createBrowserRouter([
         path: 'yt-result/:videoId',
         element: <YtResult/>,
         loader: YtResultLoader,
+      },
+      {
+        path: 'register',
+        element: <RegistrationPage/>,
+        action: RegistrationAction,
+      },
+      {
+        path: 'play/:videoId',
+        element: <MediaPlayer/>
       },
     ],
   },

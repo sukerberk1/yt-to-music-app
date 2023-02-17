@@ -2,7 +2,7 @@ import { Box, IconButton, Typography } from "@mui/material";
 import { Link, useLoaderData, useOutletContext } from "react-router-dom";
 import { Card, CardMedia, CardContent, CardActions, Button } from "@mui/material";
 import { Download } from "@mui/icons-material";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import AuthContext from "../context/AuthContext";
 const YOUTUBE_API_KEY = 'AIzaSyC6LZBjHVXzJeihFO1EymtwKdI5b4QxsIs'+'';
 const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&key=${YOUTUBE_API_KEY}&id=`
@@ -72,6 +72,7 @@ export default function YtResult(props){
     const { verifyAccessToken, refreshUser, userToken } = useContext(AuthContext)
     /* state inheritage */
     const [libUpdates, setLibUpdates] = useOutletContext();
+    const [libAddProtection, setLibAddProtection] = useState(0);
 
     const handleVideoSave = async () =>{
       verifyAccessToken().then(ans => {
@@ -89,10 +90,14 @@ export default function YtResult(props){
       }); 
       console.log(await response.json());
       if (response.status === 208){
-        alert("Already in your lib!");
+        setLibAddProtection(1);
       }
       setLibUpdates(libUpdates+1);
     }
+
+    console.log(userToken && libAddProtection);
+    console.log(userToken && !libAddProtection);
+    
 
     return(
       <Card sx={{ display: 'flex' }}>
@@ -106,15 +111,22 @@ export default function YtResult(props){
           </Typography>
         </CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pl: 1, pb: 4 }}>
-        { userToken ? (
-          <Button variant="contained" startIcon={<Download/>} onClick={handleVideoSave}>
-          Save in your library
-        </Button>
-        ):(
+        { (userToken && !libAddProtection) ? (
+            <Button variant="contained" startIcon={<Download/>} onClick={handleVideoSave}>
+            Save in your library
+          </Button>
+
+        ) : (userToken && libAddProtection) ? (
+          <Button variant="contained" color="success" startIcon={<Download/>} >
+            Already in your lib!
+          </Button>
+        ) : (
           <Button disabled variant="contained" startIcon={<Download/>} >
             Log in to save
           </Button>
-        )}
+        )
+        }
+
         
 
         </Box>

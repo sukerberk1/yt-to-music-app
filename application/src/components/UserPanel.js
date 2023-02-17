@@ -1,11 +1,10 @@
-import { Form } from "react-router-dom";
+import { Form, Link, redirect, useLocation, useNavigate } from "react-router-dom";
 import React from "react";
-import { Box, Button, TextField, List, Avatar, CircularProgress, ListItem, ListItemAvatar, ListItemText, Typography, Divider, LinearProgress } from '@mui/material';
-import { AccountCircle, PasswordRounded } from '@mui/icons-material';
+import { Box, Button, TextField, List, Avatar, CircularProgress, ListItem, ListItemAvatar, ListItemText, Typography, Divider, LinearProgress, IconButton } from '@mui/material';
+import { AccountCircle, PlayArrow } from '@mui/icons-material';
 import { useContext, useEffect, useState } from "react";
-import jwt_decode from "jwt-decode";
 import AuthContext from "../context/AuthContext";
-import { display } from "@mui/system";
+import { green } from "@mui/material/colors";
 
 /* borrowed from MUI website */
 function stringAvatar(name) {
@@ -59,9 +58,8 @@ function UserHero(props){
     const userData = await res.json();
     setUserObject(userData);
   }
-  
+
   useEffect(()=>{load();},[]);
-  console.log(userObject);
   return (
     <>
       {userObject.id != 0 ? (
@@ -100,7 +98,7 @@ function UserLibrary(props){
     setUserLib(libArray);
   }
 
-  useEffect(()=>{load();}, []);
+  useEffect(()=>{load();}, [props.libUpdates]);
 
   return (
     <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
@@ -122,6 +120,9 @@ function UserLibrary(props){
                     >
                       {Math.floor(elem.duration_seconds/60)}:{elem.duration_seconds%60}
                     </Typography>
+                    <IconButton aria-label="delete" size="large" LinkComponent={Link} to={`/play/${elem.yt_id}`}>
+                      <PlayArrow/>
+                    </IconButton>
                   </React.Fragment>
                 }
               />
@@ -142,39 +143,69 @@ function UserLibrary(props){
 
 export default function UserPanel(props){
 
-  const { userToken, setUserToken, loginUser, logoutUser } = useContext(AuthContext);
+  const { userToken, loginUser, logoutUser } = useContext(AuthContext);
+  const [submitState, setSubmitState] = useState(1);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const username = e.target.username.value;
     const password = e.target.password.value;
-    username.length > 0 && loginUser(username, password);
+    if(username.length > 0) setSubmitState(await loginUser(username, password));
+  }
+
+  const cancelRegistration = (e) => {
+    if (location.pathname==='/register') navigate('/');
   }
   
+  const handleLogout = async () => { setSubmitState( await logoutUser() ) }
 
     return (<>{ userToken ? (
         <Box sx={{padding: 1, wordWrap: 'break-word' }}>
           <UserHero/>
-          <Button variant="outlined" style={{margin: 8}} onClick={logoutUser}>Log out</Button>
+          <Button variant="outlined" style={{margin: 8}} onClick={handleLogout}>Log out</Button>
           <UserLibrary libUpdates={props.libUpdates}/>
         </Box>
         
       ): (
 
         <Form method="POST" onSubmit={handleSubmit}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-            <AccountCircle sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-            <TextField  label="Username" variant="filled" fullWidth margin="normal" name="username"/>
+          <AccountCircle sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
+          <Box sx={{ display: 'flex', alignItems: 'flex-end' }}> 
+            { submitState === 1 ? (
+            <TextField  label="Username" fullWidth margin="normal" name="username" onChange={cancelRegistration}/>
+            ): submitState === 401 ? (
+              <TextField  label="Username" fullWidth margin="normal" name="username" onChange={cancelRegistration}
+              error/>
+            ): submitState === 204 ? (
+              <TextField  label="Username" fullWidth margin="normal" name="username" onChange={cancelRegistration}
+               color="success" />
+            ): (
+              <TextField  label="Username" fullWidth margin="normal" name="username" onChange={cancelRegistration}
+               error />
+            )}
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-            <PasswordRounded sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-            <TextField type={'password'} label="Password" variant="filled" fullWidth margin="normal" name="password"/>
+            
+            { submitState === 1 ? (
+            <TextField type={'password'} label="Password" fullWidth margin="normal" name="password" onChange={cancelRegistration}/>
+            ) : submitState === 401 ? (
+              <TextField type={'password'} label="Password" fullWidth margin="normal" name="password" onChange={cancelRegistration}
+               error helperText="Wrong credentials"/>
+            ) : submitState === 204 ? (
+              <TextField type={'password'} label="Password" fullWidth margin="normal" name="password" onChange={cancelRegistration}
+              helperText="Successfully logged out" color="success" />
+            ) :(
+              <TextField type={'password'} label="Password" fullWidth margin="normal" name="password" onChange={cancelRegistration}
+               error helperText="Unexpected error happened! Try to log in later"/>
+            )}
+            
           </Box>
 
           <Button variant="contained" type="submit">Log in</Button>
           <span style={{marginLeft: 8, marginRight:8}}>or</span>
-          <Button variant="text">Sign up</Button>
+          <Button variant="text" LinkComponent={Link} to={'register'}>Sign up</Button>
         </Form>
 
       ) }

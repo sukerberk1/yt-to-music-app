@@ -1,8 +1,8 @@
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, LinearProgress, Typography } from "@mui/material";
 import { Link, useLoaderData, useOutletContext } from "react-router-dom";
-import { Card, CardMedia, CardContent, CardActions, Button } from "@mui/material";
+import { Card, CardMedia, CardContent, Button } from "@mui/material";
 import { Download } from "@mui/icons-material";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AuthContext from "../context/AuthContext";
 const YOUTUBE_API_KEY = 'AIzaSyC6LZBjHVXzJeihFO1EymtwKdI5b4QxsIs'+'';
 const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&key=${YOUTUBE_API_KEY}&id=`
@@ -73,8 +73,10 @@ export default function YtResult(props){
     /* state inheritage */
     const [libUpdates, setLibUpdates] = useOutletContext();
     const [libAddProtection, setLibAddProtection] = useState(0);
+    const [saveProcessing, setSaveProcessing] = useState(0);
 
     const handleVideoSave = async () =>{
+      setSaveProcessing(1);
       verifyAccessToken().then(ans => {
         if(!ans) refreshUser();
       });
@@ -89,15 +91,19 @@ export default function YtResult(props){
         body: JSON.stringify(videoData),
       }); 
       console.log(await response.json());
+      
       if (response.status === 208){
         setLibAddProtection(1);
       }
       setLibUpdates(libUpdates+1);
+      setSaveProcessing(0);
     }
 
-    console.log(userToken && libAddProtection);
-    console.log(userToken && !libAddProtection);
     
+    useEffect(()=>{
+      setLibAddProtection(0);
+    },[videoData])
+
 
     return(
       <Card sx={{ display: 'flex' }}>
@@ -109,15 +115,22 @@ export default function YtResult(props){
           <Typography variant="subtitle1" color="text.secondary" component="div">
             {videoData.author}
           </Typography>
+          <Typography variant="subtitle1" color="text.secondary" component="div">
+            {Math.floor(videoData.duration_seconds/60)}:{videoData.duration_seconds%60 > 9 ? videoData.duration_seconds%60 : '0'+videoData.duration_seconds%60}
+          </Typography>
         </CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pl: 1, pb: 4 }}>
-        { (userToken && !libAddProtection) ? (
+        { (saveProcessing) ? (
+          <Box sx={{ width: '90%' }}>
+            <LinearProgress />
+          </Box>
+        ) : (userToken && !libAddProtection) ? (
             <Button variant="contained" startIcon={<Download/>} onClick={handleVideoSave}>
             Save in your library
           </Button>
 
         ) : (userToken && libAddProtection) ? (
-          <Button variant="contained" color="success" startIcon={<Download/>} >
+          <Button variant="contained" color="success" startIcon={<Download/>} LinkComponent={Link} to={`/play/${videoData.id}`} >
             Already in your lib!
           </Button>
         ) : (

@@ -1,27 +1,26 @@
 from django.shortcuts import render
-from rest_framework import viewsets, generics, permissions, mixins
+from django.http import FileResponse
+from django.contrib.auth.models import User
+from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .models import Audio
 from .serializers import AudioSerializer, UserSerializer, RegisterSerializer
-from django.contrib.auth.models import User
-from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-import json
 from .yt_downloader import download_audio
+import json
 # Create your views here.
 
-
-class AudioViewSet(viewsets.ModelViewSet):
+class AudioInfo(APIView):
     serializer_class = AudioSerializer
-    queryset = Audio.objects.all()
-
-
-class UsersViewSet(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-    # permission_classes = (IsAuthenticated,)   
+    permission_classes = [IsAuthenticated,]
+    def post(self, request, *args,  **kwargs):
+        data = json.loads(request.body)
+        audio = Audio.objects.get(id=data['id'])
+        serialized_audio = self.serializer_class(audio).data
+        return Response(serialized_audio)
 
 
 @api_view(['GET', 'POST'])
@@ -73,21 +72,33 @@ def add_new_audio(request):
             # if its in DB and in users lib, do nothing
             return Response({'message':'Audio already in the database and user lib'}, 208)
 
-        download_audio(data['yt_id'])
+        filepath = download_audio(data['yt_id']).split('\\')
         audio = Audio.objects.create(yt_id=data['yt_id'],
                             title=data['title'], 
                             author=data['author'], 
                             image_url=data['image_url'], 
                             duration_seconds=data['duration_seconds'], 
-                            file='/' + data['title'] + '.mp4')
+                            file=filepath[-1])
         user_object.audiolib.add(audio)
-        return Response({'message':'Audio successfully added'}, 200)
+        serialized_audio = AudioSerializer(audio).data
+        return Response(serialized_audio, 200)
     else:
         return Response({'message':"Couldn't authenticate user"}, 401)
 
 
+class GetSong(APIView):
+    serializer_class = AudioSerializer
+    permission_classes = [IsAuthenticated,]
+
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        song = Audio.objects.get(id=data['id'])        
+        return FileResponse(song.file.open())
+
+
 class UserRegistration(generics.GenericAPIView):
     serializer_class = RegisterSerializer
+
     def post(self, request, *args,  **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

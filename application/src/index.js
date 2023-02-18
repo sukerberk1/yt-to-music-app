@@ -5,7 +5,7 @@ import App, {action as appAction, loader as appLoader} from './App';
 import { createBrowserRouter, RouterProvider  } from 'react-router-dom';
 import YtResult, { loader as YtResultLoader} from './routes/YtResult';
 import RegistrationPage, {action as RegistrationAction} from './routes/RegistrationPage';
-import MediaPlayer from './routes/MediaPlayer';
+import MediaPlayer, {loader as MediaPlayerLoader} from './routes/MediaPlayer';
 import ErrorPage from './routes/ErrorPage';
 
 const router = createBrowserRouter([
@@ -27,8 +27,9 @@ const router = createBrowserRouter([
         action: RegistrationAction,
       },
       {
-        path: 'play/:videoId',
-        element: <MediaPlayer/>
+        path: 'play/:videoPk',
+        element: <MediaPlayer/>,
+        loader: MediaPlayerLoader
       },
     ],
   },

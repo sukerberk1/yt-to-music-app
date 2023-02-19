@@ -2,8 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid # for eventually assigning id
 
-
 # Create your models here.
+
 
 class Audio(models.Model):
     yt_id = models.CharField(max_length=100)

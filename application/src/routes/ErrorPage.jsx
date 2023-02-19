@@ -1,11 +1,15 @@
 import { Container } from "@mui/system";
-import ReportIcon from '@mui/icons-material/Report';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { Typography } from "@mui/material";
 
 export default function ErrorPage(){
     return(
-    <Container>
-            <ReportIcon style={{textAlign: 'center', fontSize: 56}}/><br/>
-            Unexpected error happened! :(
+    <Container sx={{height: '100vh', display: 'flex', flexFlow: 'column', justifyContent: 'center', alignItems: 'center'}}>
+            <ErrorOutlineIcon style={{textAlign: 'center', fontSize: 96}}/>
+            <Typography variant="h2" >
+                Unexpected error happened! :(
+            </Typography>
+            
     </Container>
     );
 }

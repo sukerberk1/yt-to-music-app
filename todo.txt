@@ -1,6 +1,0 @@
-1. api authentication with user system
-2. media audio files and their downloading 
-3. whole rest
-
-
-# sukerberk 1 token - b1aba67b4f029a62e055a134d8b7a76e82f044e4

@@ -12,7 +12,7 @@ function stringAvatar(name) {
     sx: {
       bgcolor: stringToColor(name),
     },
-    children: `${name[0]}`,
+    children: `${name[0].toUpperCase()}`,
   };
 }
 function stringToColor(string) {
@@ -28,7 +28,7 @@ function stringToColor(string) {
 
   for (i = 0; i < 3; i += 1) {
     const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
+    color += `${value.toString(16)}`.slice(-2);
   }
   /* eslint-enable no-bitwise */
 
@@ -37,12 +37,9 @@ function stringToColor(string) {
 
 
 function UserHero(props){
-  const { verifyAccessToken, refreshUser } = useContext(AuthContext);
+  const { verifyAccessToken, refreshUser, logoutUser, setUserToken } = useContext(AuthContext);
   const [ userObject, setUserObject ] = useState({});
-
-  verifyAccessToken().then(ans => {
-    if(!ans) refreshUser();
-  })
+  const [ loading, setLoading ] = useState(1);
 
 
   async function load() {
@@ -56,13 +53,31 @@ function UserHero(props){
         }
     });
     const userData = await res.json();
-    setUserObject(userData);
+    if (res.status === 200){
+      setUserObject(userData);
+      setLoading(0);
+      return 1;
+    }else{
+      setUserToken(null);
+      setLoading(1);
+      return 0;
+    }
   }
 
-  useEffect(()=>{load();},[]);
+  useEffect(()=>{
+    load().then( ans => {
+      if(!ans){
+        verifyAccessToken().then(ans => {
+          if(!ans) refreshUser();
+          load().then( res => res ? null : logoutUser())
+        })
+      }
+    })
+  },[]);
+
   return (
     <>
-      { ('email' in userObject) ? (
+      { !loading ? (
       <Box sx={{display: 'flex', flexFlow: 'column', alignItems: 'center',}}>
         <Avatar {...stringAvatar(userObject.username)}
         sx={{ width: 56, height: 56, margin: 2}}
@@ -85,11 +100,11 @@ function UserHero(props){
 }
 
 function UserLibrary(props){
-  const [userLib, setUserLib] = useState([]);
-  const { userToken } = useContext(AuthContext);
-  
+  const { verifyAccessToken, refreshUser, logoutUser } = useContext(AuthContext);
+  const [ userLib, setUserLib ] = useState([]);
+
   async function load(){
-    
+    const userToken = localStorage.getItem('authtoken');
     const res = await fetch("http://127.0.0.1:8000/api/userlib/", {
       method: 'POST',
         headers: {
@@ -102,11 +117,21 @@ function UserLibrary(props){
       const libArray = await res.json();
       setUserLib(libArray);
     }else{ 
-      console.log('a');
       setUserLib(0);
     };
   }
 
+  useEffect(()=>{
+    load().then( ans => {
+      if(!ans){
+        verifyAccessToken().then(ans => {
+          if(!ans){ refreshUser();
+          load().then( res => res ? null : logoutUser() );
+          }
+        })
+      }
+    })
+  },[]);
   useEffect(()=>{load();}, [props.libUpdates]);
 
   return (

@@ -1,7 +1,7 @@
-import { PauseCircleFilledTwoTone, PhonePausedTwoTone, PlayArrow, PlayArrowSharp, PlayArrowTwoTone } from "@mui/icons-material";
-import { Box, Card, CardMedia, CardContent, IconButton, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { Box, Card, CardMedia, CardContent, Typography } from "@mui/material";
+import { useContext, useEffect, useState } from "react";
+import { useLoaderData, useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 
 export async function loader({params}){
     const accessToken = localStorage.getItem('authtoken');
@@ -22,15 +22,16 @@ export async function loader({params}){
 }
 
 export default function MediaPlayer(props){
-
     const [audioURL, setAudioURL] = useState();
+    const { userToken, verifyAccessToken, refreshUser, logoutUser } = useContext(AuthContext);
     const audioData = useLoaderData();
+    const navigate = useNavigate();
 
     const loadSong = async () => {
         const accessToken = localStorage.getItem('authtoken');
         const videoObject = {
             id: audioData.id
-        }
+        };
         const response = await fetch('http://127.0.0.1:8000/api/song/',{
         method: "POST",
         headers: {
@@ -38,17 +39,33 @@ export default function MediaPlayer(props){
           "Content-Type": "application/json",
           "Authorization": 'Bearer '+ accessToken,
         },
-        body: JSON.stringify(videoObject)
+        body: JSON.stringify(videoObject),
       });
       return await response.blob();
-    }
+    };
 
+    /* check if user is logged in. If token expired, redirect to '/' */
+    useEffect(()=>{
+      verifyAccessToken().then( ans => {
+          if(!ans) refreshUser()
+              .then(()=>{
+                verifyAccessToken().then( ans=>{
+                  if(!ans){
+                    logoutUser();
+                    navigate('/');
+                  }
+              }
+            )
+          })
+      })
+    },[userToken]);
+
+    /* load song on render and in case user switches the song */
     useEffect(()=>{
         loadSong()
         .then( blob => window.URL.createObjectURL(blob))
         .then( blobURL => setAudioURL(blobURL) )
-    },[])
-
+    }, [audioData] );
 
     return(<Box>
             <Card>
@@ -65,5 +82,5 @@ export default function MediaPlayer(props){
             </Typography>
             </CardContent>
         </Card>
-    </Box>)
+    </Box>);
 }

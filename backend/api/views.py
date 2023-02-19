@@ -70,7 +70,7 @@ def add_new_audio(request):
                 user_object.audiolib.add(existing_audio_queryset.first())
                 return Response({'message':'Audio successfully added'}, 200)
             # if its in DB and in users lib, do nothing
-            return Response({'message':'Audio already in the database and user lib'}, 208)
+            return Response({'message':'Audio already in the database and user lib', 'id':existing_audio_queryset.first().id}, 208)
 
         filepath = download_audio(data['yt_id']).split('\\')
         audio = Audio.objects.create(yt_id=data['yt_id'],

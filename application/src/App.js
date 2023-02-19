@@ -1,22 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Grid from '@mui/material/Grid'; // Grid version 1
-import { Box, Container, Button, TextField, Paper } from '@mui/material';
+import { Container } from '@mui/material';
 import './App.css';
 import Header from './components/Header'
 import { Outlet,  redirect } from 'react-router-dom';
 import UserPanel from "./components/UserPanel";
 import { AuthProvider } from "./context/AuthContext";
 
-export function loader({ request, params }) {
-    /* May load sth here... idk */
-    return 1;
-}
-
 export async function action( {params, request} ){
   /* By the neccesity of post requests, action function must be defined in order for them to work */
     return (redirect('/'));
 }
-
 
 function App(){
 

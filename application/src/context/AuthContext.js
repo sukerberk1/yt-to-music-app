@@ -7,14 +7,13 @@ const AuthContext = createContext();
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
-
-
   const [userToken, setUserToken] = useState(() =>
     localStorage.getItem("authtoken")
       ? localStorage.getItem("authtoken")
       : null
   );
   const [loading, setLoading] = useState(true);
+  
 
   const loginUser = async (username, password) => {
     const response = await fetch("http://127.0.0.1:8000/api/token-obtain/", {
@@ -95,7 +94,7 @@ export const AuthProvider = ({ children }) => {
     return response.status;
   };
 
-  const logoutUser = async () => {
+  const logoutUser = () => {
     setUserToken(null);
     localStorage.removeItem("authtoken");
     localStorage.removeItem("refreshtoken");

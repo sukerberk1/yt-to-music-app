@@ -1,10 +1,11 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
 import { Link, useLoaderData, useOutletContext } from "react-router-dom";
 import { Card, CardMedia, CardContent, Button } from "@mui/material";
-import { Download } from "@mui/icons-material";
+import { ArrowOutward, Download } from "@mui/icons-material";
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../context/AuthContext";
-const YOUTUBE_API_KEY = 'AIzaSyC6LZBjHVXzJeihFO1EymtwKdI5b4QxsIs'+'';
+
+const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY
 const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&key=${YOUTUBE_API_KEY}&id=`
 const url2_duration = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&key=${YOUTUBE_API_KEY}&id=`;
 
@@ -24,6 +25,7 @@ function parseDurationString( durationString ){
            );
 }
 
+/* unfortunately duration of youtube video must be fetched from a different API endpoint */
 function getDurationSeconds(videoId){
     return(
         fetch(url2_duration+videoId)
@@ -68,9 +70,9 @@ export async function loader({params}){
 
 export default function YtResult(props){
 
-    const videoData = useLoaderData();
+    let videoData = useLoaderData();
     const { verifyAccessToken, refreshUser, userToken } = useContext(AuthContext)
-    /* state inheritage */
+    /* state inheritage from App.js*/
     const [libUpdates, setLibUpdates] = useOutletContext();
     const [libAddProtection, setLibAddProtection] = useState(0);
     const [saveProcessing, setSaveProcessing] = useState(0);
@@ -90,15 +92,16 @@ export default function YtResult(props){
         },
         body: JSON.stringify(videoData),
       }); 
-      console.log(await response.json());
-      
+      /* case when user already has this audio in his lib */
       if (response.status === 208){
+        const serverAnswer = await response.json();
+        videoData.id = serverAnswer.id;
         setLibAddProtection(1);
       }
       setLibUpdates(libUpdates+1);
       setSaveProcessing(0);
+      console.log(videoData);
     }
-
     
     useEffect(()=>{
       setLibAddProtection(0);
@@ -130,7 +133,7 @@ export default function YtResult(props){
           </Button>
 
         ) : (userToken && libAddProtection) ? (
-          <Button variant="contained" color="success" startIcon={<Download/>} LinkComponent={Link} to={`/play/${videoData.id}`} >
+          <Button variant="contained" color="success" startIcon={<ArrowOutward/>} LinkComponent={Link} to={`/play/${videoData.id}`} >
             Already in your lib!
           </Button>
         ) : (

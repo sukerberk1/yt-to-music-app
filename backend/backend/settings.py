@@ -130,7 +130,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# google_api_key = 'AIzaSyC6LZBjHVXzJeihFO1EymtwKdI5b4QxsIs'
 
 # media files
 MEDIA_ROOT = BASE_DIR / 'audios/'
